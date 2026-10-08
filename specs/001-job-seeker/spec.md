@@ -101,23 +101,23 @@ As a job seeker, I can see the suitable jobs and where to find each generated co
 
 ### Functional Requirements
 
-- **FR-001**: The application MUST let the user provide a resume and store its content internally as Markdown in a designated file.
+- **FR-001**: The application MUST let the user upload a resume in Markdown format and store it in a `resumes/` folder; the design MUST allow adding PDF support in the future.
 - **FR-002**: The application MUST let the user replace the stored resume, and MUST use the current stored resume for subsequent searches and cover letters.
 - **FR-003**: The application MUST let the user search for jobs by role, location criteria, and publication date.
-- **FR-004**: Location criteria MUST support remote, hybrid, city names, and combinations of these values.
-- **FR-005**: The first-version portal set MUST include LinkedIn, Glassdoor, and InfoJobs, subject to the external-service constraint in the Constitution and the clarification about permitted access methods below.
-- **FR-006**: The application MUST assess each fetched job against the stored resume and estimate the percentage of assessed job requirements that match.
-- **FR-007**: The application MUST exclude a job whose estimated requirement match is below 50%; a match of exactly 50% MUST meet this threshold.
-- **FR-008**: If a job description specifies programming languages, the application MUST exclude the job when the resume matches none of those languages.
-- **FR-009**: If a job description requires a frontend framework, the application MUST exclude the job when the resume does not match a required frontend framework.
-- **FR-010**: The application MUST save every job that passes screening as a text file in `jobs/`, with a name based on the company, job role, and publication date.
-- **FR-011**: The application MUST compare fetched listings with stored jobs and skip further processing for a listing that is already stored.
+- **FR-004**: Location criteria MUST support remote, hybrid, city names, and combinations of these values, combined as alternatives (OR).
+- **FR-005**: The first-version portal set MUST include LinkedIn, Glassdoor, and InfoJobs; the permitted access method for each portal is deferred to a specific implementation task.
+- **FR-006**: The application MUST extract from each job description the requested skills, technologies, programming languages, tools, databases, cloud environments, and similar items; compare that list with the resume's skills, technologies, programming languages, tools, databases, cloud environments, and similar items; and compute the match percentage as the ratio of job requirements matched by the resume.
+- **FR-007**: A job requirement is assessed as matched when it is present in the resume with the same name or a similar name (for example, AWS vs. Amazon Web Services); equivalent skills and partial matches count as a full match, and requirements are not weighted.
+- **FR-008**: The application MUST exclude a job whose estimated requirement match is below 50%; a match of exactly 50% MUST meet this threshold.
+- **FR-009**: If a job description specifies programming languages or frontend frameworks, the application MUST exclude the job when the resume matches none of them; matching any one listed item is sufficient to pass the gate.
+- **FR-010**: The application MUST save every job that passes screening as a text file in `jobs/`, with a name based on the company, job role, and publication date; missing publication dates MUST be recorded as `missing`.
+- **FR-011**: The application MUST identify a job uniquely by the concatenation of company, job role, and publication date; if a fetched job has the same values as a stored job, the application MUST skip further processing.
 - **FR-012**: The application MUST automatically generate a cover letter for each newly validated job, based on the job requirements and stored resume, and save it as text using the job file name followed by `.cover.txt`.
 - **FR-013**: The application MUST display matching jobs with the job role or name, company, estimated matching percentage, location, and cover-letter file produced, when available.
 - **FR-014**: The application MUST communicate portal, resume-reading, or cover-letter errors without treating failed or incomplete processing as a successful result.
 - **FR-015**: The application MUST keep resume, job, and cover-letter file operations within their designated storage locations and MUST NOT allow user-provided names to escape those locations.
 - **FR-016**: The application MUST NOT require user authentication or authorization, in accordance with the project Constitution.
-- **FR-017**: External APIs or services MUST comply with the project Constitution's requirements for openly documented, free access and permitted data handling. The application MUST NOT send resume data to an external service unless that service's terms permit the use and the user has been informed as required by the resolved product requirements.
+- **FR-017**: Cover-letter generation MAY send the resume and job description to an external AI service; the service MUST be free to use (for example, DeepSeek), MUST expose an MCP interface for programmatic access, and MUST comply with the project Constitution's requirements for openly documented, free access and permitted data handling. The specific AI service and interaction details are resolved during the implementation phase.
 
 ### Key Entities
 
@@ -141,16 +141,10 @@ As a job seeker, I can see the suitable jobs and where to find each generated co
 
 - The initial product is for a single user and does not include account creation or role-based access.
 - A search evaluates listings returned by supported and permitted portal access methods; it does not imply bypassing portal restrictions.
-- The `jobs/` directory is the application's designated job and cover-letter storage location.
+- The `jobs/` directory is the application's designated job and cover-letter storage location, and the `resumes/` directory is the designated resume storage location.
 - A listing without an applicable language or frontend-framework requirement is not rejected by that technology gate.
-- Match percentage is intended to be based on job requirements, but the precise scoring and requirement extraction rules remain unresolved.
+- Match percentage is the ratio of job requirements (skills, technologies, programming languages, tools, databases, cloud environments, and similar items) that match the resume, with unweighted requirements and similar names treated as matches.
 
 ## Clarifications
 
-- **NEEDS CLARIFICATION**: What access method is permitted and available for LinkedIn, Glassdoor, and InfoJobs under their current terms and the project's requirement to use free, openly documented APIs? If a portal has no compliant access method, should it be excluded or replaced?
-- **NEEDS CLARIFICATION**: What constitutes one assessed requirement, how are requirements weighted, and how should equivalent skills or partial matches affect the percentage?
-- **NEEDS CLARIFICATION**: For multiple programming languages or frontend frameworks, does matching any one satisfy the gate, or must the resume match every required item? The scenarios currently interpret the language rule as matching at least one listed language.
-- **NEEDS CLARIFICATION**: Which resume upload formats must be accepted, and what exact application-managed file path should contain the Markdown resume?
-- **NEEDS CLARIFICATION**: May cover-letter generation send the resume and job description to an external AI service? If so, which compliant service and what user disclosure or consent is required?
-- **NEEDS CLARIFICATION**: What uniquely identifies a job for deduplication when company, role, and publication date collide, and how should missing publication dates be represented in file names?
-- **NEEDS CLARIFICATION**: Should multiple location values be combined as alternatives (OR), required together (AND), or selectable per search?
+- **DEFERRED**: The permitted access method for LinkedIn, Glassdoor, and InfoJobs will be resolved as a specific implementation task; no compliant access method is assumed at specification time.
