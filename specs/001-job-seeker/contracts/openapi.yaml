@@ -1,0 +1,148 @@
+openapi: 3.1.0
+info:
+  title: Job Seeker Backend API
+  version: 0.1.0
+  description: Draft API contract derived from specs/001-job-seeker/spec.md.
+servers:
+  - url: http://127.0.0.1:8000
+paths:
+  /resumes:
+    post:
+      summary: Create/store a resume
+      operationId: createResume
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeUpsertRequest'
+      responses:
+        '200':
+          description: Resume stored successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericAck'
+        '400':
+          description: Invalid request payload
+    put:
+      summary: Replace existing resume
+      operationId: replaceResume
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeUpsertRequest'
+      responses:
+        '200':
+          description: Resume replaced successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericAck'
+        '400':
+          description: No existing resume to replace or invalid payload
+    get:
+      summary: List stored resumes
+      operationId: listResumes
+      responses:
+        '200':
+          description: List of stored resumes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeferredResponse'
+  /jobs:
+    get:
+      summary: Search matching jobs for a resume
+      operationId: searchJobs
+      parameters:
+        - name: role
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: resume
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching jobs with corresponding cover letters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeferredResponse'
+        '400':
+          description: Missing/invalid parameters or unknown resume
+  /cover-letters:
+    get:
+      summary: Fetch stored cover letters
+      operationId: listCoverLetters
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: company
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Filtered cover letters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeferredResponse'
+        '400':
+          description: Missing/invalid required parameters
+  /openapi:
+    get:
+      summary: Return OpenAPI/Swagger specification
+      operationId: getOpenApiSpec
+      responses:
+        '200':
+          description: OpenAPI specification document
+          content:
+            application/json:
+              schema:
+                type: object
+            application/yaml:
+              schema:
+                type: string
+components:
+  schemas:
+    ResumeUpsertRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - fileName
+        - fileContent
+      properties:
+        fileName:
+          type: string
+        fileContent:
+          type: string
+    GenericAck:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+        - status
+    DeferredResponse:
+      description: Exact schema deferred to implementation design phase.
+      type: object
+      additionalProperties: true
