@@ -4,9 +4,9 @@
 
 **Created**: 2026-09-30
 
-**Status**: Draft
+**Status**: Approved
 
-**Input**: User description: Build a backend web server that exposes a RESTful API to store resumes, search LinkedIn/Glassdoor/InfoJobs using role and publication-date criteria, filter jobs against a selected resume, store matching jobs, generate cover letters, avoid duplicates, provide retrieval endpoints for resumes and cover letters, and expose an OpenAPI/Swagger specification endpoint.
+**Input**: User description: Build a backend web server that exposes a RESTful API to store resumes, search LinkedIn/Glassdoor/InfoJobs using role and publication-date criteria, filter jobs against a selected resume, store matching jobs, generate cover letters, avoid duplicates, provide retrieval endpoints for resumes and cover letters, persist resume records and cover-letter records in MongoDB collections, and expose an OpenAPI/Swagger specification endpoint.
 
 ## User Scenarios & Testing
 
@@ -109,31 +109,33 @@ As an API client, I can retrieve stored resumes and discover the backend contrac
 - **FR-002**: The backend MUST expose `POST /resumes` accepting `fileName` and `fileContent` in the request body to create/store a resume.
 - **FR-003**: The backend MUST expose `PUT /resumes` to replace an existing stored resume and MUST return HTTP `400` when no stored resume exists to replace.
 - **FR-004**: The backend MUST expose `GET /resumes` to return stored resumes; the exact response schema is deferred to implementation planning.
-- **FR-005**: The backend MUST expose `GET /jobs` with mandatory query parameters `role` (string), `resume` (string), and `date` (string).
-- **FR-006**: `GET /jobs` MUST search supported portals and return jobs matching the selected resume together with the corresponding cover letters; the exact response schema is deferred to implementation planning.
-- **FR-007**: The first-version portal set MUST include LinkedIn, Glassdoor, and InfoJobs; the permitted access method for each portal is deferred to a specific implementation task.
-- **FR-008**: The application MUST extract from each job description the requested skills, technologies, programming languages, tools, databases, cloud environments, and similar items; compare that list with the selected resume; and compute the match percentage as the ratio of job requirements matched by the resume.
-- **FR-009**: A job requirement is assessed as matched when it is present in the resume with the same name or a similar name (for example, AWS vs. Amazon Web Services); equivalent skills and partial matches count as a full match, and requirements are not weighted.
-- **FR-010**: The application MUST exclude a job whose estimated requirement match is below 50%; a match of exactly 50% MUST meet this threshold.
-- **FR-011**: If a job description specifies programming languages or frontend frameworks, the application MUST exclude the job when the resume matches none of them; matching any one listed item is sufficient to pass the gate.
-- **FR-012**: The application MUST save every job that passes screening as a text file in `jobs/`, with a name based on the company, job role, and publication date; missing publication dates MUST be recorded as `missing`.
-- **FR-013**: The application MUST identify a job uniquely by the concatenation of company, job role, and publication date; if a fetched job has the same values as a stored job, the application MUST skip further processing.
-- **FR-014**: The application MUST automatically generate a cover letter for each newly validated job, based on the job requirements and selected resume, and save it as text using the job file name followed by `.cover.txt`.
-- **FR-015**: The backend MUST expose `GET /cover-letters` with mandatory query parameter `date` (string) and optional query parameter `company` (string).
-- **FR-016**: `GET /cover-letters` MUST return stored cover letters filtered by the supplied parameters; the exact response schema is deferred to implementation planning.
-- **FR-017**: The backend MUST expose `GET /openapi` to return an OpenAPI/Swagger specification for the REST API.
-- **FR-018**: The application MUST communicate portal, resume-reading, request-validation, or cover-letter errors without treating failed or incomplete processing as a successful result.
-- **FR-019**: The application MUST keep resume, job, and cover-letter file operations within their designated storage locations and MUST NOT allow user-provided names to escape those locations.
-- **FR-020**: The application MUST NOT require user authentication or authorization, in accordance with the project Constitution.
-- **FR-021**: Cover-letter generation MAY send the resume and job description to an external AI service; the service MUST be free to use (for example, DeepSeek), MUST expose an MCP interface for programmatic access, and MUST comply with the project Constitution's requirements for openly documented, free access and permitted data handling. The specific AI service and interaction details are resolved during the implementation phase.
+- **FR-005**: For every stored resume, the backend MUST persist a MongoDB document in the `resumes` collection with exactly one property: `name`, which uniquely identifies the resume file name. The resume MUST also remain stored in the filesystem.
+- **FR-006**: The backend MUST expose `GET /jobs` with mandatory query parameters `role` (string), `resume` (string), and `date` (string).
+- **FR-007**: `GET /jobs` MUST search supported portals and return jobs matching the selected resume together with the corresponding cover letters; the exact response schema is deferred to implementation planning.
+- **FR-008**: The first-version portal set MUST include LinkedIn, Glassdoor, and InfoJobs; the permitted access method for each portal is deferred to a specific implementation task.
+- **FR-009**: The application MUST extract from each job description the requested skills, technologies, programming languages, tools, databases, cloud environments, and similar items; compare that list with the selected resume; and compute the match percentage as the ratio of job requirements matched by the resume.
+- **FR-010**: A job requirement is assessed as matched when it is present in the resume with the same name or a similar name (for example, AWS vs. Amazon Web Services); equivalent skills and partial matches count as a full match, and requirements are not weighted.
+- **FR-011**: The application MUST exclude a job whose estimated requirement match is below 50%; a match of exactly 50% MUST meet this threshold.
+- **FR-012**: If a job description specifies programming languages or frontend frameworks, the application MUST exclude the job when the resume matches none of them; matching any one listed item is sufficient to pass the gate.
+- **FR-013**: The application MUST save every job that passes screening as a text file in `jobs/`, with a name based on the company, job role, and publication date; missing publication dates MUST be recorded as `missing`.
+- **FR-014**: The application MUST identify a job uniquely by the concatenation of company, job role, and publication date; if a fetched job has the same values as a stored job, the application MUST skip further processing.
+- **FR-015**: The application MUST automatically generate a cover letter for each newly validated job, based on the job requirements and selected resume, and save it as text using the job file name followed by `.cover.txt`.
+- **FR-016**: For every stored cover letter, the backend MUST persist a MongoDB document in the `cover-letters` collection with the following properties: `company`, `role`, `date`, and `name`. The cover letter MUST also remain stored in the filesystem as a text file.
+- **FR-017**: The backend MUST expose `GET /cover-letters` with mandatory query parameter `date` (string) and optional query parameter `company` (string).
+- **FR-018**: `GET /cover-letters` MUST return stored cover letters filtered by the supplied parameters; the exact response schema is deferred to implementation planning.
+- **FR-019**: The backend MUST expose `GET /openapi` to return an OpenAPI/Swagger specification for the REST API.
+- **FR-020**: The application MUST communicate portal, resume-reading, request-validation, or cover-letter errors without treating failed or incomplete processing as a successful result.
+- **FR-021**: The application MUST keep resume, job, and cover-letter file operations within their designated storage locations and MUST NOT allow user-provided names to escape those locations.
+- **FR-022**: The application MUST NOT require user authentication or authorization, in accordance with the project Constitution.
+- **FR-023**: Cover-letter generation MAY send the resume and job description to an external AI service; the service MUST be free to use (for example, DeepSeek), MUST expose an MCP interface for programmatic access, and MUST comply with the project Constitution's requirements for openly documented, free access and permitted data handling. The specific AI service and interaction details are resolved during the implementation phase.
 
 ### Key Entities
 
-- **Resume**: The user's current resume content, stored as Markdown and used as the matching and cover-letter source.
+- **Resume**: The user's current resume content, stored as Markdown and used as the matching and cover-letter source. A MongoDB document is also stored in the `resumes` collection with the unique property `name` identifying the file name.
 - **Search Criteria**: API query parameters for job search including role, selected resume identifier/name, publication-date criteria, and selected job portals.
 - **Job Listing**: A fetched job's source, role, company, description, requirements, location, publication date, assessed match, and screening outcome.
 - **Stored Job**: A validated job persisted as a text file and used to identify listings that should not be processed again.
-- **Cover Letter**: Text generated for a validated job from its requirements and the user's resume, stored alongside the job record under its corresponding file name.
+- **Cover Letter**: Text generated for a validated job from its requirements and the user's resume, stored alongside the job record under its corresponding file name and also persisted in MongoDB as a document in `cover-letters` with `company`, `role`, `date`, and `name`.
 - **API Contract**: OpenAPI/Swagger definition exposed by the backend to describe endpoint paths, parameters, and request/response contracts.
 
 ## Success Criteria

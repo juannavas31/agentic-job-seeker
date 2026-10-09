@@ -50,7 +50,14 @@
 - Alternatives considered:
   - Optional params with defaults: rejected due to strict API contract in spec.
 
-## Decision 8: External service constraints
+## Decision 8: MongoDB metadata persistence
+
+- Decision: Keep the file-system copies as the canonical content store, and mirror metadata in MongoDB collections named `resumes` and `cover-letters`.
+- Why: Requirement explicitly requires both the filesystem and MongoDB representations to exist for resumes and cover letters.
+- Alternatives considered:
+  - MongoDB-only persistence: rejected because the specification still requires the filesystem text file artifacts.
+
+## Decision 9: External service constraints
 
 - Decision: Keep cover-letter generation provider pluggable through a service adapter and gate activation by compliance checks.
 - Why: Constitution requires open/free APIs and compliant data handling.

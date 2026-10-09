@@ -12,9 +12,11 @@ This model describes logical entities and contracts for a file-backed FastAPI se
   - `file_name` (string, required)
   - `file_content` (string, required; markdown content)
   - `stored_at` (datetime, server-managed)
+  - `mongo_name` (string, required; mirrored to MongoDB `resumes` collection, property `name`)
 - Invariants:
   - `file_name` must be sanitized before filesystem write.
   - Only current stored resume version is active for matching.
+  - MongoDB document in `resumes` collection must contain exactly `{ "name": <file_name> }`.
 
 ### JobQuery
 
@@ -57,12 +59,17 @@ This model describes logical entities and contracts for a file-backed FastAPI se
 
 - Fields:
   - `identity_key` (string; mirrors stored job)
+  - `company` (string)
+  - `role` (string)
+  - `date` (string; creation date)
+  - `name` (string; filesystem file name)
   - `content` (string)
   - `file_path` (string; `<job-file>.cover.txt`)
   - `created_at` (datetime)
   - `generation_status` (enum: generated | failed)
 - Invariants:
   - At most one persisted cover letter per `identity_key`.
+  - MongoDB document in `cover-letters` collection must contain exactly `company`, `role`, `date`, and `name` properties.
   - Writes must remain under `jobs/` designated storage.
 
 ## API Request/Response Shapes (Draft)

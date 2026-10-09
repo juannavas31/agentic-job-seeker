@@ -6,15 +6,15 @@
 
 ## Summary
 
-Implement a FastAPI backend that exposes REST endpoints to create/replace/list resumes, search and screen jobs against a selected resume, return matching jobs with cover letters, query stored cover letters, and expose OpenAPI at `GET /openapi`. The implementation keeps screening and persistence logic in service/data layers and keeps HTTP concerns in endpoint modules.
+Implement a FastAPI backend that exposes REST endpoints to create/replace/list resumes, search and screen jobs against a selected resume, return matching jobs with cover letters, query stored cover letters, persist resume and cover-letter metadata in MongoDB, and expose OpenAPI at `GET /openapi`. The implementation keeps screening and persistence logic in service/data layers and keeps HTTP concerns in endpoint modules.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11+
 
-**Primary Dependencies**: FastAPI, Pydantic, Uvicorn, pytest
+**Primary Dependencies**: FastAPI, Pydantic, Uvicorn, PyMongo, pytest
 
-**Storage**: Local file storage (`resumes/`, `jobs/`); in-memory/runtime structures allowed for orchestration
+**Storage**: Local file storage (`resumes/`, `jobs/`) plus MongoDB collections `resumes` and `cover-letters`; in-memory/runtime structures allowed for orchestration
 
 **Testing**: pytest (unit + integration/API)
 
@@ -84,7 +84,7 @@ backend/
     └── integration/
 ```
 
-**Structure Decision**: Use the existing backend FastAPI layout documented in `backend/README.md`, with dedicated endpoint modules per API area and service modules for matching, persistence, and portal orchestration.
+**Structure Decision**: Use the existing backend FastAPI layout documented in `backend/README.md`, with dedicated endpoint modules per API area and service modules for matching, persistence, MongoDB metadata operations, and portal orchestration.
 
 ## Phase 0: Research and Decisions
 
