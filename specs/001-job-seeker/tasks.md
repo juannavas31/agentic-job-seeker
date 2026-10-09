@@ -8,9 +8,9 @@
 
 **Purpose**: Establish the backend project structure and test/runtime foundation.
 
-- [ ] T001 Create the backend package structure under `backend/app/` with `api/`, `core/`, `db/`, `models/`, `schemas/`, `services/`, and `tests/` directories.
-- [ ] T002 Initialize FastAPI app configuration in `backend/app/main.py` and application factory wiring for router registration.
-- [ ] T003 [P] Configure Python tooling for pytest, linting, and formatting in the backend environment.
+- [x] T001 Create the backend package structure under `backend/app/` with `api/`, `core/`, `db/`, `models/`, `schemas/`, `services/`, and `tests/` directories.
+- [x] T002 Initialize FastAPI app configuration in `backend/app/main.py` and application factory wiring for router registration.
+- [x] T003 [P] Configure Python tooling for pytest, linting, and formatting in the backend environment.
 
 ---
 
