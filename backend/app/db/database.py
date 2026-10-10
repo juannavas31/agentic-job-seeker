@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 from pymongo.database import Database
 
 from app.core.config import settings
@@ -33,7 +33,7 @@ def get_storage_paths() -> dict[str, Path]:
 
 
 async def init_mongodb() -> Database:
-    client = AsyncIOMotorClient(get_mongo_uri())
+    client = AsyncMongoClient(get_mongo_uri())
     database = client[get_database_name()]
     await init_beanie(database=database, document_models=get_document_models())
     return database
