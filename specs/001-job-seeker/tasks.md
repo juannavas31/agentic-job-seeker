@@ -18,12 +18,13 @@
 
 **Purpose**: Core persistence, validation, and base API infrastructure required before user-story work begins.
 
-- [ ] T004 Implement file-system storage utilities for `resumes/` and `jobs/` with validation, sanitization, and safe path handling.
-- [ ] T005 Implement MongoDB client and collection helpers for `resumes` and `cover-letters` in `backend/app/db/`.
-- [ ] T006 Define request/response schemas and domain models for resumes, jobs, and cover letters in `backend/app/schemas/` and `backend/app/models/`.
-- [ ] T007 Create shared error-handling and validation patterns for invalid payloads, missing resources, and portal failures.
-- [ ] T008 Set up router and dependency injection structure in `backend/app/api/v1/` and `backend/app/api/deps.py`.
-- [ ] T009 [P] Add baseline unit test scaffolding and fixtures for file storage and MongoDB abstractions in `backend/tests/unit/`.
+- [x] T004 Implement file-system storage utilities for `resumes/` and `jobs/` with validation, sanitization, and safe path handling.
+- [x] T005 Implement MongoDB client and collection helpers for `resumes` and `cover-letters` in `backend/app/db/`. Use beanie library to interact with mongodb asynchronously. Use AsyncMongoClient to setup the mongodb client. Define classes Resume for resumes documents and Job for jobs documents using Document as base class from beanie library.
+- [x] T006 Define request/response schemas and domain models for resumes, jobs, and cover letters in `backend/app/schemas/` and `backend/app/models/`.
+- [x] T007 Create shared error-handling and validation patterns for invalid payloads, missing resources, and portal failures.
+- [x] T008 Set up router and dependency injection structure in `backend/app/api/v1/` and `backend/app/api/deps.py`.
+- [x] T0090 [P] Add baseline unit test scaffolding and fixtures for file storage and MongoDB abstractions in `backend/tests/unit/`. For MongoDB unit tests, use mongomock to mock mongodb server.
+- [x] T0091 [P] Add baseline integration test scaffolding and fixtures for file storage and MongoDB abstractions. Create the folder 'backend/tests/integration/' and add integration tests. Use testcontainers.mongodb to simulate mongodb server. Create a fixture with scope="session") to setup the mongo client based on the MongoDbContainer(). Then write the test cases using this client instance.
 
 **Checkpoint**: Foundation ready - user story implementation can begin in parallel.
 
