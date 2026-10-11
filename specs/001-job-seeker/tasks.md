@@ -10,6 +10,7 @@
 
 - [x] T001 Create the backend package structure under `backend/app/` with `api/`, `core/`, `db/`, `models/`, `schemas/`, `services/`, and `tests/` directories.
 - [x] T002 Initialize FastAPI app configuration in `backend/app/main.py` and application factory wiring for router registration.
+- [x] T002a Create the scaffolding for dependency injection of singletones in `backend/app/main.py`. Use lifespan context manager. Create a singletone for the mongodb client, to be injected later in the handlers functions. The connection to mongo db server does not needs authentication for now.  
 - [x] T003 [P] Configure Python tooling for pytest, linting, and formatting in the backend environment.
 
 ---
@@ -38,16 +39,17 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Contract test for `POST /resumes` and `PUT /resumes` in `backend/tests/integration/test_resume_api.py`.
-- [ ] T011 [P] [US1] Unit test for resume storage validation and replacement rules in `backend/tests/unit/test_resume_service.py`.
+- [x] T010a [P] [US1] Contract test for `POST /resumes` in `backend/tests/integration/test_resume_api.py`. Use testcontainers to simulate mongodb, in particular setup the mongoclient based on MongoDbContainer(). Verify that a resume is correctly stored in the file system and in mongodb. 
+- [x] T010b [P] [US1] Contract tests for `PUT /resumes` in `backend/tests/integration/test_resume_api.py`. Use testcontainers to simulate mongodb, in particular setup the mongoclient based on MongoDbContainer(). Verify that a resume is correctly updated in the file system and in mongodb
+- [x] T011 [P] [US1] Unit test for resume storage validation and replacement rules in `backend/tests/unit/test_resume_service.py`. Use mongomock to mock mongodb server.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `ResumeStore` and resume file operations in `backend/app/services/resume_service.py`.
-- [ ] T013 [P] [US1] Implement MongoDB resume persistence adapter for the `resumes` collection in `backend/app/db/resume_repository.py`.
-- [ ] T014 [US1] Add endpoint handlers for `POST /resumes` and `PUT /resumes` in `backend/app/api/v1/endpoints/resumes.py`.
-- [ ] T015 [US1] Add request validation, empty-state handling, and 400/422 response rules for resume creation and replacement.
-- [ ] T016 [US1] Expose resume retrieval support for `GET /resumes` and persist the selected rule set needed for later job-screening flows.
+- [x] T012 [P] [US1] Implement `ResumeStore` service and resume file operations in `backend/app/services/resume_service.py`. 
+- [x] T013 [P] [US1] Implement MongoDB resume persistence adapter for the `resumes` collection in `backend/app/db/resume_repository.py`. Use dependency injection and inject the mongodb client to the 'ResumeStore' service and subsequent classes dealing with mongodb repository. 
+- [x] T014 [US1] Add endpoint handlers for `POST /resumes` and `PUT /resumes` in `backend/app/api/v1/endpoints/resumes.py`. Use dependency injection and inject the mongodb client singletone in the endpoint handlers
+- [x] T015 [US1] Add request validation, empty-state handling, and 400/422 response rules for resume creation and replacement.
+- [x] T016 [US1] Expose resume retrieval support for `GET /resumes` and persist the selected rule set needed for later job-screening flows. Inject the singletone mongodb client to the GET /resumes endpoint handler 
 
 **Checkpoint**: At this point, User Story 1 is fully functional and independently testable.
 
