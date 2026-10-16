@@ -68,9 +68,20 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `JobSearchService` orchestration in `backend/app/services/job_search_service.py`.
-- [ ] T020 [P] [US2] Implement requirement extraction and scoring logic in `backend/app/services/screening_service.py`.
-- [ ] T021 [US2] Add portal integration adapter layer for LinkedIn, Glassdoor, and InfoJobs in `backend/app/services/portal/` or equivalent integration module.
+- [x] T0190 [US2] Add portal integration adapter layer for LinkedIn in `backend/app/services/portal/linkedin` module. Use RapidAPI to fetch jobs offers from linkedIn. Use httpx library to create a client to interact with RapidAPI servers. Make the httpx client a singletone, add it to the app.state in the lifespan function in main.py. Create a LinkedIn_Jobs class to handle the interactions with RapidAPI for fetching jobs offers from linkedIn. The class constructor has no input params, it sets the frollowing attributes from .env file: rapidAPI_url = RapidAPI_url from .env, rapidAPI_linkedin_host = RapidAPI_linkedIn_host from .env, rapidAPI_key = X-RapidAPI-Key from .env. Implement an async method get_jobs(role: str, time_frame: str = "24h"):-> list(JobOffer) where JobOffer is a data class with properties company: str, published_date: str, role: str, description: str, location: str, presence: enum(on-site, hybrid, remote), job_url: str. The get_jobs() method uses the singletone httpx client to connect to rapidAPI endpoint GET/f"{self.rapidAPI_linedin_hos}/rapidap.com". The Header includes { x-rapidapi-host: f"{self.rapidAPI_linkedin_host}" } and authorization based on x-rapidapi-key (equal to self.rapidAPI_key). The rapidAPI GET endpoint uses the query parameters time_frame, limit=20, description_format=text, title=role, location="Spain OR Madrid OR remote", ai_work_arrangement = "Hybrid, Remote OK, Reomte Solely". this is an example of a GET request:   
+
+GET https://linkedin-job-search-api.p.rapidapi.com/active-jb?title=Software%20Engineer&location=Spain%20OR%20Madrid&time_frame=24h&limit=20
+Header:
+Host: linkedin-job-search-api.p.rapidapi.com
+x-rapidapi-host: linkedin-job-search-api.p.rapidapi.com
+
+The response to this query shall be used to build a list of JobOffers objects, that is returned as result of the get_jobs() method.  
+
+- [ ] T0191 [US2] Add portal integration adapter layer for LinkedIn, Glassdoor, and InfoJobs in `backend/app/services/portal/` or equivalent integration module.
+- [ ] T0192 [US2] Add portal integration adapter layer for LinkedIn, Glassdoor, and InfoJobs in `backend/app/services/portal/` or equivalent integration module.
+
+- [ ] T020 [P] [US2] Implement `JobSearchService` orchestration in `backend/app/services/job_search_service.py`.
+- [ ] T021 [P] [US2] Implement requirement extraction and scoring logic in `backend/app/services/screening_service.py`.
 - [ ] T022 [US2] Implement `GET /jobs` endpoint in `backend/app/api/v1/endpoints/jobs.py` with required query parameters and validation.
 - [ ] T023 [US2] Add error handling for unavailable portals, incomplete job payloads, and invalid search inputs.
 

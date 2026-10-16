@@ -2,6 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import httpx
 from fastapi import FastAPI
 from pymongo import AsyncMongoClient
 
@@ -12,12 +13,14 @@ from app.db.database import get_mongo_uri, init_mongodb
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.base_dir = Path.cwd()
+    app.state.httpx_client = httpx.AsyncClient()
     client = AsyncMongoClient(get_mongo_uri())
     app.state.mongodb_client = client
     app.state.mongodb_db = await init_mongodb(client)
     try:
         yield
     finally:
+        await app.state.httpx_client.aclose()
         await app.state.mongodb_client.close()
 
 
