@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from pymongo import AsyncMongoClient
 
 from app.api.v1.router import router as v1_router
-from app.db.database import get_database_name, get_mongo_uri
+from app.db.database import get_mongo_uri, init_mongodb
 
 
 @asynccontextmanager
@@ -14,7 +14,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.base_dir = Path.cwd()
     client = AsyncMongoClient(get_mongo_uri())
     app.state.mongodb_client = client
-    app.state.mongodb_db = client[get_database_name()]
+    app.state.mongodb_db = await init_mongodb(client)
     try:
         yield
     finally:

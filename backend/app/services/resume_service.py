@@ -18,7 +18,7 @@ class ResumeStore:
         self.database = database
         self.base_dir = Path(base_dir)
         self.storage_dir = ensure_storage_directories(base_dir=self.base_dir)["resumes"]
-        self.repository = ResumeRepository(database)
+        self.repository = ResumeRepository()
 
     def _resume_path(self, name: str) -> Path:
         return safe_storage_path(name, "resumes", base_dir=self.base_dir)

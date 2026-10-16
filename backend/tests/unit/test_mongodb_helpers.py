@@ -1,9 +1,6 @@
 import asyncio
 from typing import Any
 
-import pytest
-from mongomock import MongoClient
-
 from app.db.database import (
     get_cover_letters_collection,
     get_database_name,
@@ -15,11 +12,6 @@ from app.db.resume_repository import ResumeRepository
 from app.models.cover_letter import CoverLetterDocument
 from app.models.job import JobDocument
 from app.models.resume import ResumeDocument
-
-
-@pytest.fixture
-def mongo_database() -> Any:
-    return MongoClient().db
 
 
 def test_database_configuration_returns_expected_defaults() -> None:
@@ -45,27 +37,28 @@ def test_collection_helpers_return_expected_collections(mongo_database: Any) -> 
 
 
 def test_resume_repository_saves_finds_and_lists_names(mongo_database: Any) -> None:
-    repository = ResumeRepository(mongo_database)
+    repository = ResumeRepository()
 
     asyncio.run(repository.save("cv.txt"))
 
     stored = asyncio.run(repository.find_by_name("cv.txt"))
     assert stored is not None
-    assert stored["name"] == "cv.txt"
+    assert stored.name == "cv.txt"
     assert asyncio.run(repository.list_names()) == ["cv.txt"]
 
 
 def test_resume_repository_upserts_existing_resume(mongo_database: Any) -> None:
-    repository = ResumeRepository(mongo_database)
+    repository = ResumeRepository()
 
     asyncio.run(repository.save("cv.txt"))
     asyncio.run(repository.save("cv.txt"))
 
     assert asyncio.run(repository.list_names()) == ["cv.txt"]
-    assert mongo_database.resumes.count_documents({"name": "cv.txt"}) == 1
+    count = asyncio.run(mongo_database.resumes.count_documents({"name": "cv.txt"}))
+    assert count == 1
 
 
 def test_resume_repository_returns_none_for_missing_resume(mongo_database: Any) -> None:
-    repository = ResumeRepository(mongo_database)
+    repository = ResumeRepository()
 
     assert asyncio.run(repository.find_by_name("missing.txt")) is None

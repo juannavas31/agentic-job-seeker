@@ -1,38 +1,25 @@
 from __future__ import annotations
 
-import inspect
-from typing import Any
-
-from app.db.database import get_resumes_collection
+from app.models.resume import ResumeDocument
 
 
 class ResumeRepository:
-    def __init__(self, database: Any) -> None:
-        self.collection = get_resumes_collection(database)
+    """Persistence adapter for the resumes collection via the beanie ResumeDocument model.
 
-    @staticmethod
-    async def _await_if_needed(value: Any) -> Any:
-        if inspect.isawaitable(value):
-            return await value
-        return value
+    The model is bound to the application database by init_beanie() during
+    startup, so no database handle needs to be passed around.
+    """
 
-    async def find_by_name(self, name: str) -> dict[str, Any] | None:
-        result = self.collection.find_one({"name": name})
-        return await self._await_if_needed(result)
+    async def find_by_name(self, name: str) -> ResumeDocument | None:
+        return await ResumeDocument.find_one(ResumeDocument.name == name)
 
-    async def save(self, name: str) -> dict[str, Any]:
-        document = {"name": name}
-        result = self.collection.replace_one({"name": name}, document, upsert=True)
-        result = await self._await_if_needed(result)
-
-        if getattr(result, "upserted_id", None) is None and getattr(result, "matched_count", 0) == 0:
-            insert_result = self.collection.insert_one(document)
-            await self._await_if_needed(insert_result)
-
+    async def save(self, name: str) -> ResumeDocument:
+        document = await self.find_by_name(name)
+        if document is None:
+            document = ResumeDocument(name=name)
+            await document.insert()
         return document
 
     async def list_names(self) -> list[str]:
-        cursor = self.collection.find({}, {"_id": 0, "name": 1}).sort("name", 1)
-        if hasattr(cursor, "__aiter__"):
-            return [doc["name"] async for doc in cursor]
-        return [doc["name"] for doc in cursor]
+        documents = await ResumeDocument.find_all().sort("+name").to_list()
+        return [document.name for document in documents]

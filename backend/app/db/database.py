@@ -6,7 +6,7 @@ from typing import Any
 
 from beanie import init_beanie
 from pymongo import AsyncMongoClient
-from pymongo.database import Database
+from pymongo.asynchronous.database import AsyncDatabase
 
 from app.core.config import settings
 from app.models.cover_letter import CoverLetterDocument
@@ -45,8 +45,7 @@ def get_storage_paths() -> dict[str, Path]:
     }
 
 
-async def init_mongodb() -> Database:
-    client = AsyncMongoClient(get_mongo_uri())
+async def init_mongodb(client: AsyncMongoClient) -> AsyncDatabase:
     database = client[get_database_name()]
     await init_beanie(database=database, document_models=get_document_models())
     return database
