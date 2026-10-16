@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from app.api.deps import get_resume_store
+from app.exceptions import invalid_request
 from app.schemas.resume import ResumeCreateRequest, ResumeResponse
 from app.services.resume_service import ResumeStore
 
@@ -17,7 +18,7 @@ async def create_resume(
     try:
         record = await store.create_resume(payload.file_name, payload.file_content)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+        raise invalid_request(str(exc)) from exc
     return ResumeResponse(name=record.name, content=record.content)
 
 
@@ -35,5 +36,5 @@ async def replace_resume(
     try:
         record = await store.replace_resume(payload.file_name, payload.file_content)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+        raise invalid_request(str(exc)) from exc
     return ResumeResponse(name=record.name, content=record.content)

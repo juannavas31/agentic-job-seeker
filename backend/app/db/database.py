@@ -2,14 +2,19 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Any
 
 from beanie import init_beanie
 from pymongo import AsyncMongoClient
 from pymongo.database import Database
 
 from app.core.config import settings
+from app.models.cover_letter import CoverLetterDocument
 from app.models.job import JobDocument
 from app.models.resume import ResumeDocument
+
+RESUMES_COLLECTION = "resumes"
+COVER_LETTERS_COLLECTION = "cover-letters"
 
 
 def get_mongo_uri() -> str:
@@ -21,7 +26,15 @@ def get_database_name() -> str:
 
 
 def get_document_models() -> list[type]:
-    return [ResumeDocument, JobDocument]
+    return [ResumeDocument, JobDocument, CoverLetterDocument]
+
+
+def get_resumes_collection(database: Any) -> Any:
+    return database.get_collection(RESUMES_COLLECTION)
+
+
+def get_cover_letters_collection(database: Any) -> Any:
+    return database.get_collection(COVER_LETTERS_COLLECTION)
 
 
 def get_storage_paths() -> dict[str, Path]:

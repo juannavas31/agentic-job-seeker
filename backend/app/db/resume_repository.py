@@ -3,10 +3,12 @@ from __future__ import annotations
 import inspect
 from typing import Any
 
+from app.db.database import get_resumes_collection
+
 
 class ResumeRepository:
     def __init__(self, database: Any) -> None:
-        self.collection = database.get_collection("resumes")
+        self.collection = get_resumes_collection(database)
 
     @staticmethod
     async def _await_if_needed(value: Any) -> Any:
