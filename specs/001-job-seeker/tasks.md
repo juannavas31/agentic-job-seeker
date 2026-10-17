@@ -77,7 +77,22 @@ x-rapidapi-host: linkedin-job-search-api.p.rapidapi.com
 
 The response to this query shall be used to build a list of JobOffers objects, that is returned as result of the get_jobs() method.  
 
-- [ ] T0191 [US2] Add portal integration adapter layer for LinkedIn, Glassdoor, and InfoJobs in `backend/app/services/portal/` or equivalent integration module.
+- [x] T0191 [US2] Add portal integration adapter layer for Glassdoor in `backend/app/services/portal` module, adding the file `glassdoor.py`. Use RapidAPI to fetch jobs offers from glassdoor. Use httpx library to create a client to interact with RapidAPI servers. Make use of the httpx client singletone, available in app.state (set in the lifespan function in main.py). Create a Glassdoor_Jobs class to handle the interactions with RapidAPI for fetching jobs offers from glassdoor. 
+The class constructor has no input params, it sets the frollowing attributes from .env file: rapidAPI_url = RapidAPI_glassdoor_url from .env, rapidAPI_glassdoor_host = RapidAPI_glassdoor_host from .env, rapidAPI_key = X-RapidAPI-Key from .env. 
+Implement an async method get_jobs(role: str, time_frame: str = "24h", location: str = "Madrid, Spain", remoteOnly: boolean = "false"):-> list(JobOffer) where JobOffer is a data class with properties company: str, published_date: str, role: str, description: str, location: str, presence: enum(on-site, hybrid, remote), job_url: str. The get_jobs() method uses the singletone httpx client to connect to rapidAPI endpoint GET/f"{self.rapidAPI_url}". The Header includes { x-rapidapi-host: f"{self.rapidAPI_glassdoor_host}" } and authorization based on x-rapidapi-key (equal to self.rapidAPI_key). The rapidAPI GET endpoint uses the query parameters datePosted (number of days since the job offer was posted, calculate this value from the time_frame which comes in format "xxH" as xx hours or "xxD" as xx days), query=role and locationId="eyJ0IjoiUyIsImlkIjo2Nzg5LCJuIjoiTWFkcmlkIn0=" This is an example of a GET request:
+GET https://glassdoor-real-time.p.rapidapi.com/jobs/search?query=Senior%20Backend%20Developer&locationId=eyJ0IjoiUyIsImlkIjo2Nzg5LCJuIjoiTWFkcmlkIn0%3D&datePosted=1
+with headers = {
+	"x-rapidapi-key": self.rapidAPI_key,
+	"x-rapidapi-host": "glassdoor-real-time.p.rapidapi.com"
+}
+This enpoint response includes pagination via a cursor. 
+To navigate through the results, use pagination via the cursor:
+
+    First Request: perform your search normally.
+    Subsequent Results: The API response includes a pageCursor (found in data -> paginationCursors -> cursor).
+    Next Page: You pass that cursor value into the `pageCursor` parameter of your next request to get the next set of jobs.
+
+
 - [ ] T0192 [US2] Add portal integration adapter layer for LinkedIn, Glassdoor, and InfoJobs in `backend/app/services/portal/` or equivalent integration module.
 
 - [ ] T020 [P] [US2] Implement `JobSearchService` orchestration in `backend/app/services/job_search_service.py`.
